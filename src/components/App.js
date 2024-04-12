@@ -1,46 +1,48 @@
-import React, { useState, useEffect } from 'react';
-// import './GolfGame.css';
+import React, { Component } from "react";
+import "../styles/App.css";
 
-const GolfGame = () => {
-  const [ballPosition, setBallPosition] = useState(0);
-  const [gameStarted, setGameStarted] = useState(false);
-
-  const handleStartGame = () => {
-    setGameStarted(true);
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (gameStarted) {
-        if (e.key === 'ArrowRight' || e.keyCode === 39) {
-          setBallPosition((prevPosition) => prevPosition + 5);
-        }
-      }
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      renderBall: false,
+      posi: 0,
+      ballPosition: { left: "5px" },
     };
+    this.renderChoice = this.renderBallOrButton.bind(this);
+    this.buttonClickHandler = this.buttonClickHandler.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+  }
 
-    window.addEventListener('keydown', handleKeyDown);
+  buttonClickHandler() {
+    this.setState({ renderBall: true });
+  }
+  renderBallOrButton() {
+    if (this.state.renderBall) {
+      return <div className="ball" style={this.state.ballPosition}></div>;
+    } else {
+      return <button className="start" onClick={this.buttonClickHandler}>Start</button>;
+    }
+  }
 
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [gameStarted]);
+  // bind ArrowRight keydown event
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+  handleKeyDown(e) {
+    if (e.key === "ArrowRight" && this.state.renderBall) {
+      this.setState((prevState) => ({
+        ballPosition: {
+          ...prevState.ballPosition,
+          left: parseInt(prevState.ballPosition.left) + 5 + "px",
+        },
+      }));
+    }
+  }
 
-  return (
-    <div>
-      {!gameStarted ? (
-        <button className="start" onClick={handleStartGame}>
-          Start
-        </button>
-      ) : null}
+  render() {
+    return <div className="playground">{this.renderBallOrButton()}</div>;
+  }
+}
 
-      {gameStarted ? (
-        <div
-          className="ball"
-          style={{ left: `${ballPosition}px` }}
-        ></div>
-      ) : null}
-    </div>
-  );
-};
-
-export default GolfGame;
+export default App;
